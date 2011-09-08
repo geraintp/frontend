@@ -127,8 +127,9 @@ class SetupController
     $usesLocalFs = (getSession()->get('fileSystem') == 'LocalFs') ? true : false;
     $usesS3 = (getSession()->get('fileSystem') == 'S3') ? true : false;
     $usesSimpleDb = (getSession()->get('database') == 'SimpleDb') ? true : false;
+	$usesCloudFiles = (getSession()->get('fileSystem') == 'CloudFiles') ? true : false;
 
-    $body = getTheme()->get('setup.php', array('step' => $step, 'usesAws' => $usesAws, 'usesMySql' => $usesMySql, 'usesLocalFs' => $usesLocalFs, 'usesS3' => $usesS3, 'usesSimpleDb' => $usesSimpleDb, 'appId' => $appId));
+    $body = getTheme()->get('setup.php', array('step' => $step, 'usesAws' => $usesAws, 'usesMySql' => $usesMySql, 'usesLocalFs' => $usesLocalFs, 'usesS3' => $usesS3, 'usesCloudFiles' => $usesCloudFiles, 'usesSimpleDb' => $usesSimpleDb, 'appId' => $appId));
     getTheme()->display('template.php', array('body' => $body, 'page' => 'setup'));
   }
 
@@ -145,10 +146,12 @@ class SetupController
     $usesMySql = (getSession()->get('database') == 'MySql') ? true : false;
     $usesLocalFs = (getSession()->get('fileSystem') == 'LocalFs') ? true : false;
     $usesS3 = (getSession()->get('fileSystem') == 'S3') ? true : false;
+	$usesCloudFiles = (getSession()->get('fileSystem') == 'CloudFiles') ? true : false;
     $usesSimpleDb = (getSession()->get('database') == 'SimpleDb') ? true : false;
     $awsErrors = false;
     $mySqlErrors = false;
     $localFsErrors = false;
+	$cfErrors = false;
     $fsErrors = false;
     $dbErrors = false;
     $writeErrors = false;
@@ -205,7 +208,21 @@ class SetupController
       $localFsErrors = getForm()->hasErrors($input);
     }
 
-    if($awsErrors === false && $mySqlErrors === false && $localFsErrors === false)
+	if ($usesCloudFiles) {
+		$cfUserName = $_POST['cfUserName'];
+		$cfApiKey = $_POST['cfApiKey'];
+		$cfContainer = $_POST['cfContainer'];
+		$cfAuthUrl = $_POST['cfAuthUrl'];
+		$input = array(
+		array('CloudFiles Username', $cfUserName, 'required'),
+		array('CloudFiles API Key', $cfApiKey, 'required'),
+		array('CloudFiles Container', $cfContainer, 'required')
+		);
+
+      $mySqlErrors = getForm()->hasErrors($input);
+	}
+
+    if($awsErrors === false && $mySqlErrors === false && $localFsErrors === false && $cfErrors === false)
     {
       $credentials = new stdClass;
       if($usesAws)
@@ -250,6 +267,20 @@ class SetupController
         $fs->fsHost = $fsHost;
       }
 
+		if($usesCloudFiles){
+			getSession()->set('cfUserName', $cfUserName);
+			getSession()->set('cfApiKey', $cfApiKey);
+			getSession()->set('cfContainer', $cfContainer);
+			getSession()->set('cfAuthUrl', $cfAuthUrl);
+
+			$cf = new stdClass;
+			$cf->cfUserName = $cfUserName;
+			$cf->cfApiKey = $cfApiKey;
+			$cf->cfContainer = $cfContainer;
+			$cf->cfAuthUrl = $cfAuthUrl;
+		}
+	//print_r($cf);
+
       $systems = new stdClass;
       $systems->database = getSession()->get('database');
       $systems->fileSystem = getSession()->get('fileSystem');
@@ -262,6 +293,9 @@ class SetupController
         getConfig()->set('mysql', $mysql);
       if($usesLocalFs)
         getConfig()->set('localfs', $fs);
+		if ($usesCloudFiles)
+			getConfig()->set('cloudfiles', $cf);
+	
       getConfig()->set('systems', $systems);
 
       $fsObj = getFs();

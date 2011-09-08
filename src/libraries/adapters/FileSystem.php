@@ -44,7 +44,7 @@ function getFs(/*$type*/)
     case 'localfs':
       $filesystem = new FileSystemLocal();
       break;
-	case 'cloudfiles':
+	case 'CloudFiles':
       $filesystem = new FileSystemCloudFiles();
       break;
   }

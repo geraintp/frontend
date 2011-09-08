@@ -45,6 +45,7 @@
       <select name="fileSystem">
         <option value="S3">Amazon S3</option>
         <option value="LocalFs">Local filesystem</option>
+		<option value="CloudFiles">Rackspace CloudFiles</option>
       </select>
       <button type="submit">Continue to Step 3</button>
     </form>
@@ -92,6 +93,20 @@
           <label for="fsHost">File system hostname for download URL</label>
         <input type="text" name="fsHost" id="fsHost" size="50" data-validation="required">
       <?php } ?>
+		<?php if(isset($usesCloudFiles) && !empty($usesCloudFiles)) { ?>
+			<h3>Enter your Rackspace CloudFiles system credentials <em>(<a href="">what's this?</a>)</em></h3>
+	        <label for="fsRoot">Username</label>
+	        <input type="text" name="cfUserName" id="cfUserName" size="50" data-validation="required">
+	          <label for="fsHost">API Key</label>
+	        <input type="text" name="cfApiKey" id="cfApiKey" size="50" data-validation="required">
+			  <label for="fsHost">Container</label>
+	        <input type="text" name="cfContainer" id="cfApiKey" size="50" data-validation="required">
+			<label for="fsHost">Auth URL</label>
+			 <select name="cfAuthUrl">
+		        <option value="<?php echo US_AUTHURL ?>">USA</option>
+		        <option value="<?php echo UK_AUTHURL ?>">UK</option>
+		      </select>
+		<?php } ?>
       <button type="submit">Complete setup</button>
     </form>
   </div>

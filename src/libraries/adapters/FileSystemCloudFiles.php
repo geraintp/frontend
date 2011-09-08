@@ -22,8 +22,8 @@ class FileSystemCloudFiles implements FileSystemInterface
 	public function __construct()
 	{
 		$cf = getConfig()->get('cloudfiles');
-		//Authenticate
 		
+		//Authenticate		
 		$this->auth = new CF_Authentication( $cf->cfUserName, $cf->cfApiKey,
 											 null,
 											 $cf->cfAuthUrl );
@@ -162,6 +162,12 @@ class FileSystemCloudFiles implements FileSystemInterface
 	public function initialize()
 	{
 		//TODO
+		// check container exists / 
+			//create container if not there 
+		
+		//and make public.
+		
+		return true;
 	}
 }
 ?>
