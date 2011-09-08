@@ -7,5 +7,6 @@
 # Useful files which should never be committed
 src/configs/generated/*.ini
 src/html/photos/**/*
+src/tmp/
 src/html/assets/themes/*
 !default
